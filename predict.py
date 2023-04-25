@@ -74,17 +74,19 @@ def deal(boxes):
 			result.append(b)
 	return torch.stack(result)
 
-classes=[]
+#classes=[]
 anchors=[[44, 43,  87, 39,  64,102], [20, 18,  43, 21,  28, 34]]
-for line in open('/home/lwd/code/darknet/data/coco.names'):
-	classes.append(line[:-1])
+#for line in open('/home/lwd/code/darknet/data/coco.names'):
+	#classes.append(line[:-1])
 net=Tiny()
-net.load_darknet('/home/lwd/code/darknet/backup/yolov3-tiny_best.weights')
+model_path='/home/lwd/csdn/yolov3-tiny-pytorch/result/model/123:4.702.pth'
+paras=torch.load(model_path, map_location='cuda')
+net.load_state_dict(paras)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 net = net.cuda()
 net.eval()
 with open('log.txt', 'w') as f:
-	for line in open('/home/lwd/data/20220523.txt'):
+	for line in open('/home/lwd/data/test.txt'):
 		print(line[:-1])
 		raw = Image.open(line[:-1])
 		ih, iw = np.shape(raw)[0:2]
@@ -120,7 +122,7 @@ with open('log.txt', 'w') as f:
 				w = b[2]
 				h = b[3]
 				draw.rectangle([cx-w/2, cy-h/2, cx+w/2, cy+h/2])
-				draw.text((cx-w/2, cy-h/2+11), classes[int(b[4])], fill="#FF0000")
-				f.write(classes[int(b[4])]+' '+str(b[5].item())+'\n')
+				draw.text((cx-w/2, cy-h/2+11), str(b[4].long().item()), fill="#FF0000")
+				f.write(str(b[4].long().item())+' '+str(b[5].item())+'\n')
 		del draw
 		raw.save('result/image/'+line[:-1].split('/')[-1])
