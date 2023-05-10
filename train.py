@@ -43,7 +43,8 @@ if len(model_path) > 1:
 	paras=torch.load(model_path, map_location='cuda')
 	net.load_state_dict(paras)
 # hyperparameter
-anchors = [[44, 43],  [87, 39],  [64,102], [20, 18],  [43, 21],  [28, 34]]
+# 32, 22,  26, 39,  46, 32,  20, 76,  39, 54,  79, 69
+anchors = [[20, 76],  [39, 54],  [79,69], [32, 22],  [26, 39],  [46, 32]]
 los = Loss(input_shape, anchors, class_num)
 lr = 1e-4
 optimizer = optim.Adam(net.parameters(), lr, weight_decay = 5e-4)

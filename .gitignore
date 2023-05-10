@@ -1,2 +1,6 @@
+result
+!result/model/123:4.702.pth
+!result/image/146.jpg
+!result/image/readme.md
 __pycache__
 log.txt
