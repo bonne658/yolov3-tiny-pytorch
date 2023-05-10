@@ -42,18 +42,19 @@ class Backbone(nn.Module):
 		return r1, r2, x14		
 
 class Tiny(nn.Module):
-	def __init__(self):
+	def __init__(self, class_num):
 		super().__init__()
 		self.backbone = Backbone()
+		cc = 3*(5+class_num)
 		self.convs=[]
 		for m in self.backbone.modules():
 			if isinstance(m, BaseConv):
 				self.convs.append(m)
-		self.conv15 = BaseConv(512, 255, 1, 1, 0, False, 'linear')
+		self.conv15 = BaseConv(512, cc, 1, 1, 0, False, 'linear')
 		self.conv18 = BaseConv(256, 128, 1, 1, 0, True, 'leaky')
 		self.upsample19 = nn.Upsample(scale_factor=2)
 		self.conv21 = BaseConv(384, 256, 3, 1, 1, True, 'leaky')
-		self.conv22 = BaseConv(256, 255, 1, 1, 0, False, 'linear')
+		self.conv22 = BaseConv(256, cc, 1, 1, 0, False, 'linear')
 		self.convs.append(self.conv15)
 		self.convs.append(self.conv18)
 		self.convs.append(self.conv21)

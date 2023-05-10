@@ -16,23 +16,25 @@ def show_batch(image, label):
 		# for lab in label[i]:
 		# 	print(lab)
 
+class_num = 1
+input_shape = (608, 608)
 # data
 batch_size = 2
-data_txt='/home/lwd/data/train.txt'
+data_txt='/home/lwd/from/candela/data/train.txt'
 with open(data_txt) as f:
 	train_lines = f.readlines()
-train_dataset=YoloDataset(train_lines, (416, 416), True)
+train_dataset=YoloDataset(train_lines, input_shape, True)
 train_data = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, pin_memory=True, drop_last=True, collate_fn=yolo_dataset_collate)
-test_txt='/home/lwd/data/test.txt'
+test_txt='/home/lwd/from/candela/data/test.txt'
 with open(test_txt) as f:
 	test_lines = f.readlines()
-test_dataset=YoloDataset(test_lines, (416, 416), False)
+test_dataset=YoloDataset(test_lines, input_shape, False)
 test_data = DataLoader(test_dataset, shuffle = False, batch_size = batch_size, pin_memory=True, drop_last=True, collate_fn=yolo_dataset_collate)
 train_step = len(train_lines) // batch_size
 val_step = len(test_lines) // batch_size
 # net
 model_path=''
-net=Tiny()
+net=Tiny(class_num)
 net.init()
 net.load_darknet('yolov3-tiny.conv.15')
 net = net.cuda()
@@ -42,7 +44,7 @@ if len(model_path) > 1:
 	net.load_state_dict(paras)
 # hyperparameter
 anchors = [[44, 43],  [87, 39],  [64,102], [20, 18],  [43, 21],  [28, 34]]
-los = Loss((416, 416), anchors, 80)
+los = Loss(input_shape, anchors, class_num)
 lr = 1e-4
 optimizer = optim.Adam(net.parameters(), lr, weight_decay = 5e-4)
 #lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.94)
