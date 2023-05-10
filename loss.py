@@ -44,7 +44,7 @@ class Loss(nn.Module):
 		self.anchors = anchors
 		self.bbox_attrs = 5 + classes
 		self.anchors_mask = anchors_mask
-		self.ignore_threshold = 0.5
+		self.ignore_threshold = 0.05
 		
 	'''
 	l:            第l组anchors_mask

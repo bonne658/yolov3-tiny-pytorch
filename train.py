@@ -19,7 +19,7 @@ def show_batch(image, label):
 class_num = 1
 input_shape = (608, 608)
 # data
-batch_size = 2
+batch_size = 4
 data_txt='/home/lwd/from/candela/data/train.txt'
 with open(data_txt) as f:
 	train_lines = f.readlines()
