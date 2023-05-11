@@ -3,10 +3,12 @@ import numpy as np
 import torch, copy, time, sys, cv2
 from tiny import Tiny
 
+class_num = 1
+input_shape = (608, 608)
 def get_boxes(output, anchors):
 	h=output.size(2)
 	w=output.size(3)
-	output=output.view(3,85,h,w).permute(0,2,3,1).contiguous()
+	output=output.view(3,5+class_num,h,w).permute(0,2,3,1).contiguous()
 	# conf
 	conf = torch.sigmoid(output[..., 4])
 	cl = torch.sigmoid(output[..., 5:])
@@ -75,24 +77,24 @@ def deal(boxes):
 	return torch.stack(result)
 
 #classes=[]
-anchors=[[44, 43,  87, 39,  64,102], [20, 18,  43, 21,  28, 34]]
+anchors=[[20, 76,  39, 54,  79,69], [32, 22,  26, 39,  46, 32]]
 #for line in open('/home/lwd/code/darknet/data/coco.names'):
 	#classes.append(line[:-1])
-net=Tiny()
-model_path='/home/lwd/csdn/yolov3-tiny-pytorch/result/model/123:4.702.pth'
+net=Tiny(class_num)
+model_path='/home/lwd/csdn/yolov3-tiny-pytorch/result/model/472:3.171.pth'
 paras=torch.load(model_path, map_location='cuda')
 net.load_state_dict(paras)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 net = net.cuda()
 net.eval()
 with open('log.txt', 'w') as f:
-	for line in open('/home/lwd/data/test.txt'):
+	for line in open('/home/lwd/data/other.txt'):
 		print(line[:-1])
 		raw = Image.open(line[:-1])
 		ih, iw = np.shape(raw)[0:2]
 		# inference
 		raw = raw.convert('RGB')
-		image = raw.resize((416, 416))
+		image = raw.resize(input_shape)
 		image = np.array(image, dtype='float32') / 255.0
 		image = np.expand_dims(np.transpose(image, (2, 0, 1)), 0)
 		with torch.no_grad():
@@ -109,8 +111,8 @@ with open('log.txt', 'w') as f:
 			if len(boxes) == 0: continue
 			boxes[:,0] = boxes[:,0] * iw
 			boxes[:,1] = boxes[:,1] * ih
-			boxes[:,2] = boxes[:,2] / 416.0 * iw
-			boxes[:,3] = boxes[:,3] / 416.0 * ih
+			boxes[:,2] = boxes[:,2] / float(input_shape[0]) * iw
+			boxes[:,3] = boxes[:,3] / float(input_shape[1]) * ih
 			for b in boxes:
 				thld_boxes.append(b)
 		if len(thld_boxes) != 0: 
@@ -121,8 +123,8 @@ with open('log.txt', 'w') as f:
 				cy = b[1]
 				w = b[2]
 				h = b[3]
-				draw.rectangle([cx-w/2, cy-h/2, cx+w/2, cy+h/2])
-				draw.text((cx-w/2, cy-h/2+11), str(b[4].long().item()), fill="#FF0000")
+				draw.rectangle([cx-w/2, cy-h/2, cx+w/2, cy+h/2], outline='red')
+				draw.text((cx-w/2, cy-h/2+11), str(b[4].long().item()), fill="#360066")
 				f.write(str(b[4].long().item())+' '+str(b[5].item())+'\n')
 		del draw
 		raw.save('result/image/'+line[:-1].split('/')[-1])

@@ -53,7 +53,7 @@ optimizer = optim.Adam(net.parameters(), lr, weight_decay = 5e-4)
 # iterator
 i = 1
 lr_cnt = 0
-vl_last = 9
+vl_last = 5
 for param in net.backbone.parameters():
 	param.requires_grad = False
 while True:
